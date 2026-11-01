@@ -1,0 +1,3 @@
+[submodule "legacy-1.12.2/renderer"]
+    path = legacy-1.12.2/renderer
+    url = https://github.com/TheMade4/Relictium.git
