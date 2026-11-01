@@ -25,6 +25,24 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
+      - name: Add GTNH releases repository for the RFG plugin marker
+        working-directory: legacy-1.12.2/renderer
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("settings.gradle")
+          s = p.read_text()
+          needle = "        maven {\n            // RetroFuturaGradle"
+          replacement = """        maven {
+                    name 'GTNH Releases'
+                    url 'https://nexus.gtnewhorizons.com/repository/releases/'
+                }
+        maven {
+            // RetroFuturaGradle"""
+          if needle not in s:
+              raise SystemExit("Could not locate the RFG plugin repository block")
+          p.write_text(s.replace(needle, replacement, 1))
+          PY
       - name: Build pinned Relictium renderer
         working-directory: legacy-1.12.2/renderer
         run: |
