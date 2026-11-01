@@ -36,9 +36,13 @@ pinned upstream commit.
 
 Relictium's upstream README lists known incompatibilities with OptiFine,
 FarPlaneTwo, LittleTiles, Fluidlogged API (and mods using it, such as
-Subaquatic), and ArchitectureCraft. All the Mods 3 6.1.1 has not yet been
-tested as a complete pack with this branch. Do not assume every ATM3 mod is
-compatible until that regression testing is completed.
+Subaquatic), and ArchitectureCraft.
+
+A static audit of the official ATM3 6.1.1 manifest/mod list found 262 listed
+mod entries and no exact entries matching those documented incompatibilities.
+This removes those specific, named conflicts from the initial risk list, but
+it is not a launch test or a guarantee of compatibility. In particular, this
+branch has not yet been tested in-game with the complete ATM3 6.1.1 pack.
 
 ## Attribution and licensing
 
