@@ -1,26 +1,38 @@
 buildscript {
     repositories {
-        maven { url = "https://maven.minecraftforge.net" }
+        maven { url = 'https://files.minecraftforge.net/maven' }
         mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        // Forge 1.12.2 build 2860 publishes UserDev 3, which requires FG 3+.
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 
 group = 'net.caffeinemc'
 version = '0.1.0-1.12.2'
 archivesBaseName = 'sodium-forge'
 
-sourceCompatibility = targetCompatibility = '1.8'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    version = '1.12.2-14.23.5.2860'
-    runDir = 'run'
-    mappings = 'stable_39'
-    makeObfSourceJar = false
+    mappings channel: 'snapshot', version: '20180814-1.12'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
 }
 
 repositories {
@@ -28,6 +40,7 @@ repositories {
 }
 
 dependencies {
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2860'
 }
 
 processResources {
@@ -56,3 +69,5 @@ jar {
         )
     }
 }
+
+jar.finalizedBy('reobfJar')
