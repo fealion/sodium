@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.gitmodules'
+      - '.github/scripts/**'
       - 'legacy-1.12.2/**'
       - '.github/workflows/legacy-1122.yml'
   pull_request:
