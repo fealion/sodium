@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Patch Relictium's legacy Gradle plugin resolution in the parent CI checkout.
+"""Patch legacy Relictium Gradle resolution for a reproducible CI build.
 
-RetroFuturaGradle's implementation artifact is published to GTNH's releases
-repository. The upstream settings only search the public repository and rely
-on a plugin marker which may not be mirrored there, so CI adds the releases
-repository and maps the plugin ID directly to its implementation module.
+The pinned Relictium revision requests RFG 1.4.1, which is not present in the
+configured GTNH repositories. RFG 1.4.2 is published there, so the legacy
+build uses that compatible patch release and resolves its implementation
+artifact directly rather than relying on a plugin marker.
 """
 from pathlib import Path
 import sys
@@ -12,11 +12,11 @@ import sys
 if len(sys.argv) != 2:
     raise SystemExit("usage: patch-rfg-settings.py path/to/settings.gradle")
 
-path = Path(sys.argv[1])
-if not path.is_file():
-    raise SystemExit("settings file not found: " + str(path))
+settings_path = Path(sys.argv[1])
+if not settings_path.is_file():
+    raise SystemExit("settings file not found: " + str(settings_path))
 
-source = path.read_text(encoding="utf-8")
+source = settings_path.read_text(encoding="utf-8")
 
 if "https://nexus.gtnewhorizons.com/repository/releases/" not in source:
     needle = "    repositories {\n"
@@ -27,7 +27,7 @@ if "https://nexus.gtnewhorizons.com/repository/releases/" not in source:
         }
 """
     if needle not in source:
-        raise SystemExit("could not find pluginManagement repositories block in " + str(path))
+        raise SystemExit("could not find pluginManagement repositories block in " + str(settings_path))
     source = source.replace(needle, replacement, 1)
 
 if "useModule(\"com.gtnewhorizons:retrofuturagradle:" not in source:
@@ -42,8 +42,21 @@ if "useModule(\"com.gtnewhorizons:retrofuturagradle:" not in source:
     }
 """
     if needle not in source:
-        raise SystemExit("could not find pluginManagement block in " + str(path))
+        raise SystemExit("could not find pluginManagement block in " + str(settings_path))
     source = source.replace(needle, replacement, 1)
 
-path.write_text(source, encoding="utf-8")
-print("Added GTNH releases repository and direct RFG implementation-module resolution")
+build_path = settings_path.with_name("build.gradle")
+if not build_path.is_file():
+    raise SystemExit("build file not found: " + str(build_path))
+
+build_source = build_path.read_text(encoding="utf-8")
+old_decl = "id 'com.gtnewhorizons.retrofuturagradle' version '1.4.1'"
+new_decl = "id 'com.gtnewhorizons.retrofuturagradle' version '1.4.2'"
+if old_decl in build_source:
+    build_source = build_source.replace(old_decl, new_decl, 1)
+elif new_decl not in build_source:
+    raise SystemExit("could not find the expected RFG 1.4.1 plugin declaration in " + str(build_path))
+
+settings_path.write_text(source, encoding="utf-8")
+build_path.write_text(build_source, encoding="utf-8")
+print("Added GTNH releases resolution and pinned the unavailable RFG 1.4.1 to published 1.4.2")
