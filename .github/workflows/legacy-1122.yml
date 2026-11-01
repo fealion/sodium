@@ -10,6 +10,7 @@ on:
   pull_request:
     paths:
       - '.gitmodules'
+      - '.github/scripts/**'
       - 'legacy-1.12.2/**'
       - '.github/workflows/legacy-1122.yml'
   workflow_dispatch:
@@ -26,7 +27,7 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
-      - name: Patch RFG plugin marker resolution
+      - name: Patch legacy RFG plugin resolution
         run: python3 .github/scripts/patch-rfg-settings.py legacy-1.12.2/renderer/settings.gradle
       - name: Build pinned Relictium renderer
         working-directory: legacy-1.12.2/renderer
