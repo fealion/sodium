@@ -1,12 +1,14 @@
-name: Forge 1.12.2 bootstrap build
+name: Forge 1.12.2 Sodium-derived renderer
 
 on:
   push:
     paths:
+      - '.gitmodules'
       - 'legacy-1.12.2/**'
       - '.github/workflows/legacy-1122.yml'
   pull_request:
     paths:
+      - '.gitmodules'
       - 'legacy-1.12.2/**'
       - '.github/workflows/legacy-1122.yml'
   workflow_dispatch:
@@ -14,21 +16,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: legacy-1.12.2
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '8'
+          java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '4.10.3'
-      - name: Build Forge mod
-        run: gradle --no-daemon build
+      - name: Build pinned Relictium renderer
+        working-directory: legacy-1.12.2/renderer
+        run: |
+          chmod +x ./gradlew
+          ./gradlew --no-daemon build
       - uses: actions/upload-artifact@v4
         with:
-          name: sodium-forge-1.12.2
-          path: legacy-1.12.2/build/libs/*.jar
+          name: sodium-derived-forge-1.12.2
+          path: legacy-1.12.2/renderer/build/libs/*.jar
+          if-no-files-found: error
