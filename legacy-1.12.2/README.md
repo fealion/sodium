@@ -1,35 +1,40 @@
-# Sodium — Forge 1.12.2 port (bootstrap)
+# Forge 1.12.2 renderer component
 
-This directory is an isolated legacy target for Minecraft 1.12.2 / Forge
-14.23.5.2860 / Java 8. It deliberately does not alter the modern Fabric and
-NeoForge build at the repository root.
+This branch pins a working Sodium-derived renderer for the legacy target:
 
-## Current status
+- Minecraft 1.12.2
+- Forge 14.23.5.2860
+- Runtime target: Java 8
 
-This is **only the initial Forge mod bootstrap**. It registers a minimal mod
-entry point so the legacy build can be brought up independently. It does not
-yet replace chunk rendering, improve frame rates, or claim compatibility with
-All the Mods 3.
+The renderer source is linked at `renderer/` as a Git submodule. It is
+**Relictium**, an unofficial Forge port descended from Vintagium, itself an
+unofficial Sodium fork. It is not a direct backport of the current modern
+Sodium source tree. The original modern Sodium project remains at the repo
+root and is not changed by this legacy component.
 
-## Build
+## Get the source and build
 
-Use JDK 8 and Gradle 4.10.3:
+From the repository root:
 
 ```sh
-cd legacy-1.12.2
-gradle setupDecompWorkspace
-gradle build
+git submodule update --init --recursive
+cd legacy-1.12.2/renderer
+./gradlew --no-daemon build
 ```
 
-The output JAR is written to `build/libs/`.
+Use JDK 21 to run the Gradle build. The CI build downloads/uses the required
+Java 8 compilation toolchain. Built jars are written to
+`legacy-1.12.2/renderer/build/libs/`.
 
-## Porting milestones
+## Compatibility notes
 
-1. Establish a reproducible ForgeGradle 2.3 / Java 8 build.
-2. Add a renderer backend behind a safe opt-in switch; preserve vanilla fallback.
-3. Integrate Forge block-layer, chunk rebuild, and render events.
-4. Add compatibility adapters for TESRs, custom baked models, and modded renderers.
-5. Run a structured regression matrix against ATM3 6.1.1.
+Relictium's upstream README lists known incompatibilities with OptiFine,
+FarPlaneTwo, LittleTiles, Fluidlogged API (and mods using it, such as
+Subaquatic), and ArchitectureCraft. All the Mods 3 6.1.1 has not yet been
+tested as a complete pack with this branch. Do not assume every ATM3 mod is
+compatible until that regression testing is completed.
 
-Do not install this bootstrap as a performance mod: it currently provides no
-renderer replacement.
+## Attribution and licensing
+
+See [UPSTREAMS.md](UPSTREAMS.md). The renderer submodule retains its original
+LGPL-3.0 license and attribution notices.
